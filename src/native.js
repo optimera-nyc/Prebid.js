@@ -105,3 +105,38 @@ export function fireNativeImpressions(adObject) {
     triggerPixel(tracker);
   });
 }
+
+/**
+ * Builds native click tracking url
+ * @param {Object} bid
+ * @return {string} url
+ */
+function buildClickTrackerUrl(url, bid) {
+  const clickTrackers = bid['native'] && bid['native'].clickTrackers
+  return encodeURIComponent(`${url}?${clickTrackers[0]}`);
+}
+
+/**
+ * Sets native targeting key-value paris
+ * @param {Object} bid
+ * @return {Object} targeting
+ */
+export function setNativeTargeting(bid) {
+  let keyValues = {};
+
+  Object.keys(bid['native']).forEach(asset => {
+    const key = NATIVE_KEYS[asset];
+
+    let value = bid['native'][asset];
+
+    if (asset === 'clickUrl') {
+      value = buildClickTrackerUrl(value, bid);
+    }
+
+    if (key) {
+      keyValues[key] = value;
+    }
+  });
+
+  return keyValues;
+}
