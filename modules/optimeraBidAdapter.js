@@ -1,6 +1,8 @@
+import adaptermanager from 'src/adaptermanager';
 import {registerBidder} from 'src/adapters/bidderFactory';
 const BIDDER_CODE = 'optimera';
 const SCORES_BASE_URL = 'https://s3.amazonaws.com/elasticbeanstalk-us-east-1-397719490216/json/client/';
+
 
 export const spec = {
   code: BIDDER_CODE,
@@ -51,14 +53,13 @@ export const spec = {
     console.log(bidRequest);
     var scores = JSON.parse('{"div-0":["RB_K","728x90K"], "div-1":["RB_K","300x250K", "300x600K"], "timestamp":["RB_K","1507565666"]}');
     var validBids = bidRequest.payload;
+    console.log('---------------');
     console.log(validBids);
     var bidResponses = [];
     var dealId = '';
-    for (var i = 0; i <= validBids.length; i++) {
-      if (validBids[i].adUnitCode in scores) {
-        dealId = scores[validBids[i].adUnitCode];
-      }
-      if (validBids[i].custom.clientID) {
+    for (var i = 0; i < validBids.length; i++) {
+      console.log(validBids[i]);
+      if (validBids[i].adUnitCode in scores && validBids[i].params.custom.clientID != undefined) {
         dealId = scores[validBids[i].adUnitCode];
       }
       var bidResponse = {
