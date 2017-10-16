@@ -29,7 +29,6 @@ export const spec = {
       var scoresURLx = SCORES_BASE_URL + clientID + '/' + optimeraHost + '/' + optimeraPathName + '.js?t=' + timestamp;
       console.log(scoresURLx);
       var scoresURL = '/scores.js';
-      console.log(validBidRequests);
       return {
         method: 'GET',
         url: scoresURL,
@@ -48,12 +47,9 @@ export const spec = {
     console.log(bidRequest);
     var scores = JSON.parse('{"div-0":["RB_K","728x90K"], "div-1":["RB_K","300x250K", "300x600K"], "timestamp":["RB_K","1507565666"]}');
     var validBids = bidRequest.payload;
-    console.log(validBids);
     var bidResponses = [];
     var dealId = '';
     for (var i = 0; i < validBids.length; i++) {
-      console.log(validBids[i]);
-      console.log(scores);
       if (validBids[i].adUnitCode in scores && validBids[i].params.custom.clientID != undefined) {
         dealId = scores[validBids[i].adUnitCode];
       }
@@ -72,5 +68,5 @@ export const spec = {
     return bidResponses;
   }
 }
-console.log(spec);
+
 registerBidder(spec);
