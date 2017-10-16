@@ -1,19 +1,18 @@
-import adaptermanager from 'src/adaptermanager';
 import {registerBidder} from 'src/adapters/bidderFactory';
+import * as utils from 'src/utils';
 const BIDDER_CODE = 'optimera';
 const SCORES_BASE_URL = 'https://s3.amazonaws.com/elasticbeanstalk-us-east-1-397719490216/json/client/';
-
 
 export const spec = {
   code: BIDDER_CODE,
   /**
    * Determines whether or not the given bid request is valid.
    *
-   * @param {BidRequest} bid The bid params to validate.
+   * @param {bidRequest} bid The bid params to validate.
    * @return boolean True if this is a valid bid, and false otherwise.
    */
-  isBidRequestValid: function (bid) {
-    return !!(bid.params.placementId);
+  isBidRequestValid: function (bidRequest) {
+    return !!(bidRequest.params.placementId);
   },
   /**
    * Make a server request from the list of BidRequests.
@@ -22,23 +21,19 @@ export const spec = {
    * @return ServerRequest Info describing the request to the server.
    */
   buildRequests: function (validBidRequests) {
-    var optimeraHost = window.location.host;
+    var optimeraHost = utils.getTopWindowUrl();
     var optimeraPathName = window.location.pathname;
     var timestamp = Math.round(new Date().getTime() / 1000);
-    console.log(validBidRequests);
-    var clientId = validBidRequests[0].params.custom.clientId;
-    console.log(clientId);
-    if (clientId != undefined) {
-      var scoresURLx = SCORES_BASE_URL + clientId + '/' + optimeraHost + '/' + optimeraPathName + '.js?t=' + timestamp;
+    var clientID = validBidRequests[0].params.custom.clientID;
+    if (clientID != undefined) {
+      var scoresURLx = SCORES_BASE_URL + clientID + '/' + optimeraHost + '/' + optimeraPathName + '.js?t=' + timestamp;
       console.log(scoresURLx);
       var scoresURL = '/scores.js';
-      console.log(scoresURL);
-      var payload = validBidRequests;
-      var payloadString = payload;
+      console.log(validBidRequests);
       return {
         method: 'GET',
         url: scoresURL,
-        payload: payloadString
+        payload: validBidRequests
       };
     }
   },
@@ -53,23 +48,23 @@ export const spec = {
     console.log(bidRequest);
     var scores = JSON.parse('{"div-0":["RB_K","728x90K"], "div-1":["RB_K","300x250K", "300x600K"], "timestamp":["RB_K","1507565666"]}');
     var validBids = bidRequest.payload;
-    console.log('---------------');
     console.log(validBids);
     var bidResponses = [];
     var dealId = '';
     for (var i = 0; i < validBids.length; i++) {
       console.log(validBids[i]);
+      console.log(scores);
       if (validBids[i].adUnitCode in scores && validBids[i].params.custom.clientID != undefined) {
         dealId = scores[validBids[i].adUnitCode];
       }
       var bidResponse = {
-        requestId: validBids[i].bidId,
         bidderCode: spec.code,
+        requestId: validBids[i].bidId,
+        ad: '<div></div>',
         cpm: 0.01,
         width: 0,
         height: 0,
-        dealId: dealId,
-        ad: '<div></div>'
+        dealId: dealId
       };
       bidResponses.push(bidResponse);
       console.log(bidResponses);
@@ -77,4 +72,5 @@ export const spec = {
     return bidResponses;
   }
 }
+console.log(spec);
 registerBidder(spec);
