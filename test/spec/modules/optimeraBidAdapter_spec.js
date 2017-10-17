@@ -49,7 +49,7 @@ describe('OptimeraAdapter', () => {
       }
     ];
     it('buildRequests fires', () => {
-      const request = spec.buildRequests(validBidRequests);
+      var request = spec.buildRequests(validBidRequests);
     });
   });
 
@@ -73,7 +73,7 @@ describe('OptimeraAdapter', () => {
       ]
     }
     it('interpresResponse fires', () => {
-      const bidResponses = spec.interpretResponse(serverResponse, bidRequest);
+      var bidResponses = spec.interpretResponse(serverResponse, bidRequest);
     });
   });
 });

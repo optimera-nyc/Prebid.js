@@ -26,13 +26,14 @@ export const spec = {
     var timestamp = Math.round(new Date().getTime() / 1000);
     var clientID = validBidRequests[0].params.custom.clientID;
     if (clientID != undefined) {
-      var scoresURLx = SCORES_BASE_URL + clientID + '/' + optimeraHost + '/' + optimeraPathName + '.js?t=' + timestamp;
+      var scoresURLx = SCORES_BASE_URL + clientID + '/' + optimeraHost + optimeraPathName;
       console.log(scoresURLx);
-      var scoresURL = '/scores.js';
+      var scoresURL = 'http://worhtleydev.s3-website-us-east-1.amazonaws.com/scores.js';
       return {
         method: 'GET',
         url: scoresURL,
-        payload: validBidRequests
+        payload: validBidRequests,
+        data: {'t': timestamp}
       };
     }
   },
@@ -43,9 +44,9 @@ export const spec = {
    * @return {Bid[]} An array of bids which were nested inside the server.
    */
   interpretResponse: function (serverResponse, bidRequest) {
-    console.log(serverResponse);
-    console.log(bidRequest);
-    var scores = JSON.parse('{"div-0":["RB_K","728x90K"], "div-1":["RB_K","300x250K", "300x600K"], "timestamp":["RB_K","1507565666"]}');
+    var scores = serverResponse.replace('window.oVa = ', '');
+    scores = scores.replace(';', '');
+    scores = JSON.parse(scores);
     var validBids = bidRequest.payload;
     var bidResponses = [];
     var dealId = '';
@@ -63,8 +64,8 @@ export const spec = {
         dealId: dealId
       };
       bidResponses.push(bidResponse);
-      console.log(bidResponses);
     }
+    console.log(bidResponses);
     return bidResponses;
   }
 }
