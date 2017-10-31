@@ -1,5 +1,4 @@
 import {registerBidder} from 'src/adapters/bidderFactory';
-import * as utils from 'src/utils';
 const BIDDER_CODE = 'optimera';
 const SCORES_BASE_URL = 'https://s3.amazonaws.com/elasticbeanstalk-us-east-1-397719490216/json/client/';
 
@@ -12,7 +11,11 @@ export const spec = {
    * @return boolean True if this is a valid bid, and false otherwise.
    */
   isBidRequestValid: function (bidRequest) {
-    return !!(bidRequest.params.placementId);
+    if (typeof bidRequest.params.custom != 'undefined' && typeof bidRequest.params.custom.clientID != 'undefined') {
+      return !!(bidRequest.params.custom.clientID);
+    } else {
+      return false;
+    }
   },
   /**
    * Make a server request from the list of BidRequests.
@@ -21,14 +24,18 @@ export const spec = {
    * @return ServerRequest Info describing the request to the server.
    */
   buildRequests: function (validBidRequests) {
-    var optimeraHost = utils.getTopWindowUrl();
+    var optimeraHost = window.location.host;
     var optimeraPathName = window.location.pathname;
     var timestamp = Math.round(new Date().getTime() / 1000);
     var clientID = validBidRequests[0].params.custom.clientID;
-    if (clientID != undefined) {
-      var scoresURLx = SCORES_BASE_URL + clientID + '/' + optimeraHost + optimeraPathName;
-      console.log(scoresURLx);
-      var scoresURL = 'http://worhtleydev.s3-website-us-east-1.amazonaws.com/scores.js';
+    var oDv = [];
+    if (typeof clientID != 'undefined') {
+      oDv.push(clientID);
+      for (var i = 0; i < validBidRequests.length; i++) {
+        oDv.push(validBidRequests[i].adUnitCode);
+      }
+      window.oDv = oDv;
+      var scoresURL = SCORES_BASE_URL + clientID + '/' + optimeraHost + optimeraPathName + '.js';
       return {
         method: 'GET',
         url: scoresURL,
@@ -51,7 +58,7 @@ export const spec = {
     var bidResponses = [];
     var dealId = '';
     for (var i = 0; i < validBids.length; i++) {
-      if (validBids[i].adUnitCode in scores && validBids[i].params.custom.clientID != undefined) {
+      if (validBids[i].adUnitCode in scores && typeof validBids[i].params.custom.clientID != 'undefined') {
         dealId = scores[validBids[i].adUnitCode];
       }
       var bidResponse = {
@@ -65,7 +72,6 @@ export const spec = {
       };
       bidResponses.push(bidResponse);
     }
-    console.log(bidResponses);
     return bidResponses;
   }
 }
