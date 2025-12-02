@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Optimera RTD Module Test Page</title>
+  <script src="build/dev/prebid.js"></script>
+  <script>
+    window.pbjs = window.pbjs || {};
+    pbjs.que = pbjs.que || [];
+
+    pbjs.que.push(function() {
+      console.log('Prebid version:', pbjs.version);
+      console.log('Bidder codes:', pbjs.getBidderCodes && pbjs.getBidderCodes());
+
+      pbjs.setConfig({
+        realTimeData: {
+        dataProviders: [{
+            name: 'optimeraRTD',
+            waitForIt: true,
+            params: {
+            clientID: '0',
+            optimeraKeyName: 'optimera',
+            apiVersion: 'v0'
+            // any other params Optimera gave you
+            }
+        }]
+        }
+    });
+
+      pbjs.addAdUnits([{
+        code: 'adbridg_ad_adbadbox_1',
+        mediaTypes: { banner: { sizes: [[300, 250]] } },
+        bids: [{
+          bidder: 'appnexus',
+          params: {
+            placementId: 13144370,
+            //ext: { optimera: {} }
+          }
+        }]
+      }]);
+
+      pbjs.addAdUnits([{
+        code: 'adbridg_ad_adbleaderboard_1',
+        mediaTypes: { banner: { sizes: [[300, 250]] } },
+        bids: [{
+          bidder: 'appnexus',
+          params: {
+            placementId: 13144370,
+            //ext: { optimera: {} }
+          }
+        }]
+      }]);
+
+      pbjs.requestBids({
+        bidsBackHandler: function(bids) {
+          console.log('BIDS:', bids);
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Optimera RTD Module Test Page</h1>
+  <div id="adbridg_ad_adbadbox_1" style="width:300px;height:250px;"></div>
+</body>
+</html>

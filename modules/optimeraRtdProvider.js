@@ -194,18 +194,32 @@ export function injectOrtbScores(reqBidsConfigObj) {
     adUnit.ortb2Imp = adUnit.ortb2Imp || {};
     adUnit.ortb2Imp.ext = adUnit.ortb2Imp.ext || {};
     adUnit.ortb2Imp.ext.data = adUnit.ortb2Imp.ext.data || {};
-    // Example structure of optimeraTargeting[auCode] and assorted comma separated scoring data:
-    // optimeraTargeting['some-div']:
-    // {
-    //   Z,
-    //   A1,
-    //   L_123,
-    //   0.10,
-    // }
+
     if (auCode && optimeraTargeting[auCode]) {
+      const slotData = optimeraTargeting[auCode];
+      // Example structure of optimeraTargeting[auCode] and assorted comma separated scoring data:
+      // optimeraTargeting['some-div']:
+      // {
+      //   Z,
+      //   A1,
+      //   L_123,
+      //   0.10,
+      // }
+
       mergeDeep(adUnit.ortb2Imp.ext.data, {
-        optimera: optimeraTargeting[auCode]
+        optimera: slotData
       });
+
+      if (Array.isArray(adUnit.bids)) {
+        adUnit.bids.forEach((bid) => {
+          bid.params = bid.params || {};
+          bid.params.ext = bid.params.ext || {};
+          bid.params.ext.optimera = bid.params.ext.optimera || {};
+          mergeDeep(bid.params.ext, {
+            optimera: slotData
+          });
+        });
+      }
     }
   });
 }
